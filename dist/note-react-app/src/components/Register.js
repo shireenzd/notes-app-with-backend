@@ -19,7 +19,7 @@ function Register() {
             password,
         };
         // Send the object to the database using a POST request.
-        fetch('/api/users', {
+        fetch('http://localhost:5000/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -27,12 +27,10 @@ function Register() {
             body: JSON.stringify(user),
         })
             .then((response) => response.json())
-            .then((data) => {
-            // Handle the response from the server.
-        })
             .catch((error) => {
-            // Handle the error.
+            console.log(error);
         });
+        console.log("user added succesfully");
         setHidden(true);
     };
     const handleLogIn = () => {
@@ -53,11 +51,11 @@ function Register() {
                     <div className=' register flex flex-col justify-center items-center gap-10 p-5 min-w-96 min-h-96 '>
                         <span className='flex flex-col '>
                             <label htmlFor="name" className='text-xl'>Name:</label>
-                            <input type="text" name="name" id="name" className='rounded-md px-4 py-1'/>
+                            <input type="text" name="name" id="name" className='rounded-md px-4 py-1' value={name} onChange={(e) => setName(e.target.value)}/>
                         </span>
                         <span className='flex flex-col '>
                             <label htmlFor="email" className='text-xl'>Email:</label>
-                            <input type="email" name="email" id="email" className='rounded-md px-4 py-1'/>
+                            <input type="email" name="email" id="email" className='rounded-md px-4 py-1' value={email} onChange={(e) => setEmail(e.target.value)}/>
                         </span>
                         <span className='flex flex-col'>
                             <label htmlFor="password" className='text-xl'>Password:</label>
@@ -72,12 +70,12 @@ function Register() {
                 <div className={logInHidden ? 'hidden' : ''}>
                     <div className=' register flex flex-col justify-center items-center gap-10 p-5 min-w-96 min-h-96 '>
                         <span className='flex flex-col '>
-                            <label htmlFor="email" className='text-xl'>Email:</label>
-                            <input type="email" name="email" id="email" className='rounded-md px-4 py-1'/>
+                            <label htmlFor="exist-email" className='text-xl'>Email:</label>
+                            <input type="email" name="exist-email" id="exist-email" className='rounded-md px-4 py-1'/>
                         </span>
                         <span className='flex flex-col'>
-                            <label htmlFor="password" className='text-xl'>Password:</label>
-                            <input type="password" name="password" id="password" className='rounded-md px-4 py-1'/>
+                            <label htmlFor="exist-password" className='text-xl'>Password:</label>
+                            <input type="password" name="exist-password" id="exist-password" className='rounded-md px-4 py-1'/>
                         </span>
                         <div className='flex flex-col items-center'>
                             <button type="button" className='bg-blue-200 p-4 rounded-xl' onClick={handleSubmit}>Log In</button>
