@@ -16,6 +16,8 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const client_1 = require("@prisma/client");
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const saltRounds = 10;
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 const PORT = process.env.PORT;
@@ -110,7 +112,7 @@ app.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         return res.status(400).json({ error: "User with email " + email + " already exists!" });
     }
     // at this point, we're sure that the user record does not exist yet
-    const hashedPass = bcrypt.hashSync(password, saltRounds);
+    const hashedPass = bcrypt_1.default.hashSync(password, saltRounds);
     console.log(hashedPass);
     const newUser = yield prisma.user.create({
         data: {
