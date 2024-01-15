@@ -2,6 +2,7 @@ import React, { useState ,useEffect} from "react";
 import "./App.css";
 import NotesList from "./components/NotesList";
 import AddNoteForm from "./components/AddNoteForm";
+import Register from "./components/Register";
 
 interface Note {
   id: number;
@@ -200,6 +201,7 @@ function App() {
 
    
   return (
+    <>
     <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
       <NotesList
         deleteNote={deleteNote}
@@ -211,6 +213,10 @@ function App() {
            />
       <AddNoteForm noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit} />
     </div>
+    <div>
+      <Register/>
+    </div>
+    </>
   );
   }
 

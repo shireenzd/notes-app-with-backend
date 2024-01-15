@@ -8,7 +8,7 @@ function Register() {
     return (<div>
         <div>
             <h1>Welcome to the Notes App </h1>
-            <img src="" alt="welcome"/>
+            <img src="./test.png" alt="welcome"/>
         </div>
         <div></div>
     </div>);

@@ -39,6 +39,7 @@ const react_1 = __importStar(require("react"));
 require("./App.css");
 const NotesList_1 = __importDefault(require("./components/NotesList"));
 const AddNoteForm_1 = __importDefault(require("./components/AddNoteForm"));
+const Register_1 = __importDefault(require("./components/Register"));
 function App() {
     const [notes, setNotes] = (0, react_1.useState)([
         {
@@ -202,9 +203,14 @@ function App() {
     const filteredNotes = selectedCategory
         ? notes.filter((note) => note.category === selectedCategory)
         : notes;
-    return (<div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
+    return (<>
+    <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
       <NotesList_1.default deleteNote={deleteNote} editNote={editNote} notes={notes} sortNotesAsc={sortNotesAsc} sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange} filteredNotes={filteredNotes}/>
       <AddNoteForm_1.default noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit}/>
-    </div>);
+    </div>
+    <div>
+      <Register_1.default />
+    </div>
+    </>);
 }
 exports.default = App;
