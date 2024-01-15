@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from 'dotenv'
 import cors from 'cors'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient , Prisma} from '@prisma/client'
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 
@@ -105,8 +105,9 @@ app.post('/register', async (req, res) => {
     const { name, email, password } = req.body
     // check if user exists
     const user = await prisma.user.findUnique({
-        where: {
-            email: email
+        // @ts-ignore
+        where:{
+            email:email
         }
     })
 
@@ -136,6 +137,7 @@ app.post('/register', async (req, res) => {
     // if not exists, create it
     res.json(newUser)
 })
+
 
 app.listen(PORT,()=>{
     console.log(`server running on localhost:${PORT}`)

@@ -103,6 +103,7 @@ app.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const { name, email, password } = req.body;
     // check if user exists
     const user = yield prisma.user.findUnique({
+        // @ts-ignore
         where: {
             email: email
         }
