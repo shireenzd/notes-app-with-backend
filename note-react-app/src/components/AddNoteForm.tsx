@@ -33,9 +33,9 @@ function AddNoteForm({ addNote, noteBeingEdited }: { addNote: Function; noteBein
       priority: notePriority,
       category: noteCategory,
     };
+    
 
     addNote(newNote);
-
     // Clear form fields after submitting the note
     setNoteContent('');
     setNotePriority('');
@@ -87,8 +87,9 @@ function AddNoteForm({ addNote, noteBeingEdited }: { addNote: Function; noteBein
       </div>
 
       <button type="button" className="bg-green-300" onClick={handleSubmit}>
-        Add Note
-      </button>
+  {noteBeingEdited && 'id' in noteBeingEdited ? 'Edit Note' : 'Add Note'}
+</button>
+
     </form>
   );
 }

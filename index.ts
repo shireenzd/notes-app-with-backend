@@ -26,13 +26,11 @@ app.get('/api/notes',async (req,res) => {
 })
 
 
-
-
-
 app.post('/api/notes/create',async (req,res) => {
     try {
         const {content , priority , category}= req.body
         if (!content || !priority || !category) {
+            console.log(content,priority,category)
             throw new Error('Request missing needed data!')
         }
         const note = await prisma.note.create({
@@ -52,30 +50,32 @@ app.post('/api/notes/create',async (req,res) => {
     }
 })
 
-app.put('/api/notes/:id',async (req,res) => {
-    const {content , priority , category}= req.body
-    const id = parseInt(req.params.id)
-    if(!id || isNaN(id)){
-        return res 
+app.put('/api/notes/:id', async (req, res) => {
+    const { id, content, priority, category } = req.body;
+  
+    if (!id || isNaN(id)) {
+      return res
         .status(400)
-        .send("id must be valid")
+        .send("id must be valid");
     }
+  
+    // Remove the ID from the request body
+    delete req.body.id;
+  
     try {
-        const updatedNote= await prisma.note.update({
-            where:{id},
-            data:{
-                content:content,
-                priority:priority,
-                category:category
-            }
-        })
-        res.json(updatedNote)
+      const updatedNote = await prisma.note.update({
+        where: { id },
+        data: req.body
+      });
+  
+      res.json(updatedNote);
     } catch (error) {
-        res 
+      res
         .status(500)
-        .send("something went wrong")
+        .send("something went wrong");
     }
-})
+  });
+
 
 app.delete('/api/note/:id',async (req,res) => {
     const id = parseInt(req.params.id)

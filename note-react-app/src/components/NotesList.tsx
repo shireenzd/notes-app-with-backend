@@ -7,31 +7,31 @@ function NotesList({
   notes,
   deleteNote,
   editNote,
-  // sortNotesAsc,
-  // sortNotesDesc,
-  // selectedCategory,
-  // handleCategoryChange,
+  sortNotesAsc,
+  sortNotesDesc,
+  selectedCategory,
+  handleCategoryChange,
   filteredNotes
 }: {
   notes: Array<any>;
   deleteNote: Function;
   editNote: Function;
-  // sortNotesAsc: Function;
-  // sortNotesDesc: Function;
-  // selectedCategory: string;
-  // handleCategoryChange: Function;
+  sortNotesAsc: Function;
+  sortNotesDesc: Function;
+  selectedCategory: string;
+  handleCategoryChange: Function;
   filteredNotes: any
 }) {
-  // const handleClickAsc: React.MouseEventHandler<HTMLParagraphElement> = (
-  //   event
-  // ) => {
-  //   sortNotesAsc();
-  // };
-  // const handleClickDesc: React.MouseEventHandler<HTMLParagraphElement> = (
-  //   event
-  // ) => {
-  //   sortNotesDesc();
-  // };
+  const handleClickAsc: React.MouseEventHandler<HTMLParagraphElement> = (
+    event
+  ) => {
+    sortNotesAsc();
+  };
+  const handleClickDesc: React.MouseEventHandler<HTMLParagraphElement> = (
+    event
+  ) => {
+    sortNotesDesc();
+  };
 
   const sortingStyle={
     display:'flex',
@@ -59,8 +59,8 @@ function NotesList({
     >
       <div style={sortingStyle}>
         <div>
-        {/* <p onClick={handleClickAsc}><b>&uarr;</b></p>
-        <p onClick={handleClickDesc}><b>&darr;</b></p> */}
+        <p onClick={handleClickAsc}><b>&uarr;</b></p>
+        <p onClick={handleClickDesc}><b>&darr;</b></p>
         </div>
         <select >
           <option value="">All</option>

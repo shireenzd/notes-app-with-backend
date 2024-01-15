@@ -85,8 +85,9 @@ function AddNoteForm({ addNote, noteBeingEdited }) {
       </div>
 
       <button type="button" className="bg-green-300" onClick={handleSubmit}>
-        Add Note
-      </button>
+  {noteBeingEdited && 'id' in noteBeingEdited ? 'Edit Note' : 'Add Note'}
+    </button>
+
     </form>);
 }
 exports.default = AddNoteForm;

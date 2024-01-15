@@ -6,22 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const react_1 = __importDefault(require("react"));
 const Note_1 = __importDefault(require("./Note"));
 const constants_1 = require("./shared/constants");
-function NotesList({ notes, deleteNote, editNote, 
-// sortNotesAsc,
-// sortNotesDesc,
-// selectedCategory,
-// handleCategoryChange,
-filteredNotes }) {
-    // const handleClickAsc: React.MouseEventHandler<HTMLParagraphElement> = (
-    //   event
-    // ) => {
-    //   sortNotesAsc();
-    // };
-    // const handleClickDesc: React.MouseEventHandler<HTMLParagraphElement> = (
-    //   event
-    // ) => {
-    //   sortNotesDesc();
-    // };
+function NotesList({ notes, deleteNote, editNote, sortNotesAsc, sortNotesDesc, selectedCategory, handleCategoryChange, filteredNotes }) {
+    const handleClickAsc = (event) => {
+        sortNotesAsc();
+    };
+    const handleClickDesc = (event) => {
+        sortNotesDesc();
+    };
     const sortingStyle = {
         display: 'flex',
         justifyContent: 'space-around'
@@ -35,8 +26,8 @@ filteredNotes }) {
     return (<div style={{ width: constants_1.minWidth, height: constants_1.minHeight }} className="NotesList flex flex-col gap-4 bg-white p-10 rounded-3xl shadow-xl overflow-y-auto">
       <div style={sortingStyle}>
         <div>
-        {/* <p onClick={handleClickAsc}><b>&uarr;</b></p>
-        <p onClick={handleClickDesc}><b>&darr;</b></p> */}
+        <p onClick={handleClickAsc}><b>&uarr;</b></p>
+        <p onClick={handleClickDesc}><b>&darr;</b></p>
         </div>
         <select>
           <option value="">All</option>

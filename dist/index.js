@@ -37,6 +37,7 @@ app.post('/api/notes/create', (req, res) => __awaiter(void 0, void 0, void 0, fu
     try {
         const { content, priority, category } = req.body;
         if (!content || !priority || !category) {
+            console.log(content, priority, category);
             throw new Error('Request missing needed data!');
         }
         const note = yield prisma.note.create({
@@ -56,21 +57,18 @@ app.post('/api/notes/create', (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 }));
 app.put('/api/notes/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { content, priority, category } = req.body;
-    const id = parseInt(req.params.id);
+    const { id, content, priority, category } = req.body;
     if (!id || isNaN(id)) {
         return res
             .status(400)
             .send("id must be valid");
     }
+    // Remove the ID from the request body
+    delete req.body.id;
     try {
         const updatedNote = yield prisma.note.update({
             where: { id },
-            data: {
-                content: content,
-                priority: priority,
-                category: category
-            }
+            data: req.body
         });
         res.json(updatedNote);
     }

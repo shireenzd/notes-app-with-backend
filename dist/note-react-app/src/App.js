@@ -39,7 +39,6 @@ const react_1 = __importStar(require("react"));
 require("./App.css");
 const NotesList_1 = __importDefault(require("./components/NotesList"));
 const AddNoteForm_1 = __importDefault(require("./components/AddNoteForm"));
-const { v4: uuidv4 } = require('uuid');
 function App() {
     const [notes, setNotes] = (0, react_1.useState)([
         {
@@ -86,20 +85,28 @@ function App() {
                     console.error('Invalid note object:', note);
                     return;
                 }
-                const response = yield fetch("http://localhost:5000/api/notes/create", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(note),
-                });
-                if (response.ok) {
-                    const newNote = yield response.json();
-                    setNotes((prevNotes) => [...prevNotes, newNote]);
-                    console.log("added note");
+                if ('id' in note && note.id) {
+                    // If the note has an ID, it means it's an existing note, so perform an edit
+                    editNote(note.id, note);
                 }
                 else {
-                    console.error('Error adding the note:', response.status, response.statusText);
+                    // If there's no ID, it's a new note, so add it
+                    const response = yield fetch("http://localhost:5000/api/notes/create", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(note),
+                    });
+                    setNoteBeingEdited({});
+                    if (response.ok) {
+                        const newNote = yield response.json();
+                        setNotes((prevNotes) => [...prevNotes, newNote]);
+                        console.log("added note");
+                    }
+                    else {
+                        console.error('Error adding the note:', response.status, response.statusText);
+                    }
                 }
             }
             catch (error) {
@@ -107,37 +114,29 @@ function App() {
             }
         });
     }
-    function editNote(noteID) {
+    function editNote(noteID, updatedData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Find the note to edit in the current notes state
-                let noteToEdit = notes.find((note) => note.id === noteID);
-                // If the note is found, send a PUT request to update it
-                if (noteToEdit) {
-                    const response = yield fetch(`http://localhost:5000/api/notes/${noteID}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            // Provide updated fields here, for example:
-                            content: 'Updated content',
-                            priority: 'Updated priority',
-                            category: 'Updated category',
-                        }),
-                    });
-                    if (response.ok) {
-                        // If the update request is successful, update the state
-                        const updatedNotes = notes.map((note) => note.id === noteID ? Object.assign(Object.assign({}, note), { content: 'Updated content', priority: Number('Updated priority'), category: 'Updated category' }) : note);
-                        setNotes(updatedNotes);
-                        console.log('Note updated successfully');
-                    }
-                    else {
-                        console.error('Error updating note:', response.status, response.statusText);
-                    }
+                // Send a PUT request to update the note on the server, including the ID
+                const response = yield fetch(`http://localhost:5000/api/notes/${noteID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(Object.assign(Object.assign({}, updatedData), { id: noteID })),
+                });
+                if (response.ok) {
+                    // If the update request is successful, update the local state
+                    const updatedNote = yield response.json();
+                    // Remove the edited note from the list
+                    const updatedNotes = notes.filter((note) => note.id !== noteID);
+                    setNotes(updatedNotes);
+                    // Set the edited note as the noteBeingEdited
+                    setNoteBeingEdited(updatedNote);
+                    console.log('Note updated successfully');
                 }
                 else {
-                    console.error('Note not found for editing');
+                    console.error('Error updating note:', response.status, response.statusText);
                 }
             }
             catch (error) {
@@ -168,26 +167,33 @@ function App() {
             }
         });
     }
-    // function sortNotesAsc() {
-    //   const sortedNotes = [...notes];
-    //   sortedNotes.sort((a, b) => {
-    //     // Extract numerical parts of priority and compare
-    //     const priorityA = parseInt(a.priority.split('-')[1]);
-    //     const priorityB = parseInt(b.priority.split('-')[1]);
-    //     return priorityA - priorityB;
-    //   });
-    //   setNotes(sortedNotes);
-    // }
-    // function sortNotesDesc() {
-    //   const sortedNotes = [...notes];
-    //   sortedNotes.sort((a, b) => {
-    //     // Extract numerical parts of priority and compare
-    //     const priorityA = parseInt(a.priority.split('-')[1]);
-    //     const priorityB = parseInt(b.priority.split('-')[1]);
-    //     return priorityB - priorityA;
-    //   });
-    //   setNotes(sortedNotes);
-    // }
+    function handleNoteFormSubmit(editedNote) {
+        if ('id' in noteBeingEdited) {
+            // If the edited note has an ID, it means it already exists, so update it
+            editNote(noteBeingEdited.id, editedNote);
+            addNote(editedNote);
+            setNoteBeingEdited({});
+        }
+        else {
+            // If there's no ID, it's a new note, so add it
+            addNote(editedNote);
+        }
+        // Clear the noteBeingEdited state
+    }
+    function sortNotesAsc() {
+        const sortedNotes = [...notes];
+        sortedNotes.sort((a, b) => {
+            return a - b;
+        });
+        setNotes(sortedNotes);
+    }
+    function sortNotesDesc() {
+        const sortedNotes = [...notes];
+        sortedNotes.sort((a, b) => {
+            return b - a;
+        });
+        setNotes(sortedNotes);
+    }
     const [selectedCategory, setSelectedCategory] = (0, react_1.useState)('');
     const handleCategoryChange = (event) => {
         const selectedValue = event.target.value;
@@ -197,11 +203,8 @@ function App() {
         ? notes.filter((note) => note.category === selectedCategory)
         : notes;
     return (<div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
-      <NotesList_1.default deleteNote={deleteNote} editNote={editNote} notes={notes} 
-    // sortNotesAsc={sortNotesAsc}
-    // sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange} 
-    filteredNotes={filteredNotes}/>
-      <AddNoteForm_1.default noteBeingEdited={noteBeingEdited} addNote={addNote}/>
+      <NotesList_1.default deleteNote={deleteNote} editNote={editNote} notes={notes} sortNotesAsc={sortNotesAsc} sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange} filteredNotes={filteredNotes}/>
+      <AddNoteForm_1.default noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit}/>
     </div>);
 }
 exports.default = App;
