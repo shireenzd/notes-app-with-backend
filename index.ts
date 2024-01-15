@@ -98,6 +98,42 @@ app.delete('/api/note/:id',async (req,res) => {
 
 })
 
+app.post('/register', async (req, res) => {
+    const { name, email, password } = req.body
+    // check if user exists
+    const user = await prisma.user.findUnique({
+        where: {
+            email: email
+        }
+    })
+
+    // if user exists, return error!
+    if (user) {
+        return res.status(400).json({ error: "User with email " + email + " already exists!" })
+    }
+
+    // at this point, we're sure that the user record does not exist yet
+    const hashedPass = bcrypt.hashSync(password, saltRounds);
+
+    console.log(hashedPass)
+    const newUser = await prisma.user.create({
+        data: {
+            name: name,
+            email: email,
+            // we never store raw password anywhere!
+            password: hashedPass
+        }
+    })
+
+    // before we respond to the fronted
+    // we remove any sensitive information
+    newUser['password'] = ''
+
+    console.log(newUser)
+    // if not exists, create it
+    res.json(newUser)
+})
+
 app.listen(PORT,()=>{
     console.log(`server running on localhost:${PORT}`)
 })

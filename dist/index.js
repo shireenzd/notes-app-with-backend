@@ -97,6 +97,36 @@ app.delete('/api/note/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
             .send("something went wrong");
     }
 }));
+app.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, email, password } = req.body;
+    // check if user exists
+    const user = yield prisma.user.findUnique({
+        where: {
+            email: email
+        }
+    });
+    // if user exists, return error!
+    if (user) {
+        return res.status(400).json({ error: "User with email " + email + " already exists!" });
+    }
+    // at this point, we're sure that the user record does not exist yet
+    const hashedPass = bcrypt.hashSync(password, saltRounds);
+    console.log(hashedPass);
+    const newUser = yield prisma.user.create({
+        data: {
+            name: name,
+            email: email,
+            // we never store raw password anywhere!
+            password: hashedPass
+        }
+    });
+    // before we respond to the fronted
+    // we remove any sensitive information
+    newUser['password'] = '';
+    console.log(newUser);
+    // if not exists, create it
+    res.json(newUser);
+}));
 app.listen(PORT, () => {
     console.log(`server running on localhost:${PORT}`);
 });
