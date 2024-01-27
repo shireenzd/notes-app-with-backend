@@ -23,24 +23,21 @@ function NotesList({ notes, deleteNote, editNote, sortNotesAsc, sortNotesDesc, s
         hobbies: '#ADD8E6',
     };
     const getNoteColor = (category) => categoryColors[category] || 'pink';
-    return (<div style={{ width: constants_1.minWidth, height: constants_1.minHeight }} className="NotesList flex flex-col gap-4 bg-white p-10 rounded-3xl shadow-xl overflow-y-auto">
-      <div style={sortingStyle}>
-        <div>
-        <p onClick={handleClickAsc}><b>&uarr;</b></p>
-        <p onClick={handleClickDesc}><b>&darr;</b></p>
-        </div>
-        <select>
-          <option value="">All</option>
-          <option value="home">Home</option>
-          <option value="work">Work</option>
-          <option value="hobbies">Hobbies</option>
-        </select>
-      </div>
-      {filteredNotes.map((note) => {
-            return (<div key={note.id} className="note-item" style={{ backgroundColor: categoryColors[note.category] }}>
-        <Note_1.default key={note.id} note={note} deleteNote={deleteNote} editNote={editNote} noteColor={getNoteColor(note.category)}/>
-        </div>);
-        })}
-      </div>);
+    return (react_1.default.createElement("div", { style: { width: constants_1.minWidth, height: constants_1.minHeight }, className: "NotesList flex flex-col gap-4 bg-white p-10 rounded-3xl shadow-xl overflow-y-auto" },
+        react_1.default.createElement("div", { style: sortingStyle },
+            react_1.default.createElement("div", null,
+                react_1.default.createElement("p", { onClick: handleClickAsc },
+                    react_1.default.createElement("b", null, "\u2191")),
+                react_1.default.createElement("p", { onClick: handleClickDesc },
+                    react_1.default.createElement("b", null, "\u2193"))),
+            react_1.default.createElement("select", null,
+                react_1.default.createElement("option", { value: "" }, "All"),
+                react_1.default.createElement("option", { value: "home" }, "Home"),
+                react_1.default.createElement("option", { value: "work" }, "Work"),
+                react_1.default.createElement("option", { value: "hobbies" }, "Hobbies"))),
+        filteredNotes.map((note) => {
+            return (react_1.default.createElement("div", { key: note.id, className: "note-item", style: { backgroundColor: categoryColors[note.category] } },
+                react_1.default.createElement(Note_1.default, { key: note.id, note: note, deleteNote: deleteNote, editNote: editNote, noteColor: getNoteColor(note.category) })));
+        })));
 }
 exports.default = NotesList;

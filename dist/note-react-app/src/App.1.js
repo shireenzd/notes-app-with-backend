@@ -35,12 +35,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.App = void 0;
 const react_1 = __importStar(require("react"));
-require("./App.css");
 const NotesList_1 = __importDefault(require("./components/NotesList"));
 const AddNoteForm_1 = __importDefault(require("./components/AddNoteForm"));
 const Register_1 = __importDefault(require("./components/Register"));
-const store_1 = require("./components/store");
 function App() {
     const [notes, setNotes] = (0, react_1.useState)([
         {
@@ -48,18 +47,28 @@ function App() {
             content: "Buy groceries",
             priority: 2,
             category: "home",
-        }
+            // author: {
+            //   userName: "shireen",
+            //   profile:"/profile-pic.webp"
+            // },
+        },
+        {
+            id: 2,
+            content: "Note 2",
+            priority: 1,
+            category: "hobbies",
+            // author: {
+            //   userName: "shireen",
+            //   profile:"/profile-pic.webp"
+            // },
+        },
     ]);
     const [noteBeingEdited, setNoteBeingEdited] = (0, react_1.useState)({});
-    const { token, } = (0, store_1.useNotesStore)();
+    const [token, setToken] = (0, react_1.useState)('');
     (0, react_1.useEffect)(() => {
         const fetchNotes = () => __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield fetch("http://localhost:5000/api/notes", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = yield fetch("http://localhost:5000/api/notes");
                 const notes = yield response.json();
                 setNotes(notes);
                 console.log("restored");
@@ -70,34 +79,6 @@ function App() {
         });
         fetchNotes();
     }, []);
-    // useEffect(() => {
-    //   const fetchToken = async () => {
-    //     try {
-    //       // Perform user login (replace with your actual login logic)
-    //       const response = await fetch("http://localhost:5000/api/login", {
-    //         method: 'POST',
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //           username: 'exampleUser',
-    //           password: 'examplePassword',
-    //         }),
-    //       });
-    //       if (response.ok) {
-    //         const data = await response.json();
-    //         console.log(data)
-    //         setToken(data.token); // Assuming your token is in the 'token' property of the response
-    //         console.log(data)
-    //       } else {
-    //         console.error('Login failed:', response.status, response.statusText);
-    //       }
-    //     } catch (error) {
-    //       console.error('Error fetching token:', error);
-    //     }
-    //   };
-    //   fetchToken();
-    // }, []);
     function addNote(note) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -107,10 +88,11 @@ function App() {
                     return;
                 }
                 if ('id' in note && note.id) {
+                    // If the note has an ID, it means it's an existing note, so perform an edit
                     editNote(note.id, note);
                 }
                 else {
-                    console.log('Token:', token);
+                    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3M…yNjZ9.ZDnFwxszM7xsrHyOV0DkN_12P6nmUhNYFAoVkGSMqo0';
                     if (!token) {
                         console.error('Token not available!');
                         return;
@@ -142,6 +124,7 @@ function App() {
     function editNote(noteID, updatedData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Send a PUT request to update the note on the server, including the ID
                 const response = yield fetch(`http://localhost:5000/api/notes/${noteID}`, {
                     method: 'PUT',
                     headers: {
@@ -150,9 +133,12 @@ function App() {
                     body: JSON.stringify(Object.assign(Object.assign({}, updatedData), { id: noteID })),
                 });
                 if (response.ok) {
+                    // If the update request is successful, update the local state
                     const updatedNote = yield response.json();
+                    // Remove the edited note from the list
                     const updatedNotes = notes.filter((note) => note.id !== noteID);
                     setNotes(updatedNotes);
+                    // Set the edited note as the noteBeingEdited
                     setNoteBeingEdited(updatedNote);
                     console.log('Note updated successfully');
                 }
@@ -168,10 +154,12 @@ function App() {
     function deleteNote(noteID) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Send a DELETE request to delete the note
                 const response = yield fetch(`http://localhost:5000/api/note/${noteID}`, {
                     method: 'DELETE',
                 });
                 if (response.ok) {
+                    // If the delete request is successful, update the state and local storage
                     const updatedNotes = notes.filter((note) => note.id !== noteID);
                     setNotes(updatedNotes);
                     localStorage.setItem('notes', JSON.stringify(updatedNotes));
@@ -186,27 +174,19 @@ function App() {
             }
         });
     }
-    const fetchNotes = () => __awaiter(this, void 0, void 0, function* () {
-        try {
-            const response = yield fetch("http://localhost:5000/api/notes");
-            const notes = yield response.json();
-            setNotes(notes);
-            console.log("Notes updated");
-        }
-        catch (error) {
-            console.log(error);
-        }
-    });
-    const handleNoteFormSubmit = (editedNote) => __awaiter(this, void 0, void 0, function* () {
+    function handleNoteFormSubmit(editedNote) {
         if ('id' in noteBeingEdited) {
-            yield editNote(noteBeingEdited.id, editedNote);
+            // If the edited note has an ID, it means it already exists, so update it
+            editNote(noteBeingEdited.id, editedNote);
+            addNote(editedNote);
             setNoteBeingEdited({});
-            fetchNotes();
         }
         else {
+            // If there's no ID, it's a new note, so add it
             addNote(editedNote);
         }
-    });
+        // Clear the noteBeingEdited state
+    }
     function sortNotesAsc() {
         const sortedNotes = [...notes];
         sortedNotes.sort((a, b) => {
@@ -229,11 +209,14 @@ function App() {
     const filteredNotes = selectedCategory
         ? notes.filter((note) => note.category === selectedCategory)
         : notes;
-    return (react_1.default.createElement(react_1.default.Fragment, null, token ? (react_1.default.createElement("div", { className: "App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]" },
-        react_1.default.createElement(NotesList_1.default, { deleteNote: deleteNote, editNote: editNote, notes: notes, sortNotesAsc: sortNotesAsc, sortNotesDesc: sortNotesDesc, selectedCategory: selectedCategory, handleCategoryChange: handleCategoryChange, filteredNotes: filteredNotes }),
-        react_1.default.createElement(AddNoteForm_1.default, { noteBeingEdited: noteBeingEdited, addNote: handleNoteFormSubmit })))
-        :
-            (react_1.default.createElement("div", null,
-                react_1.default.createElement(Register_1.default, null)))));
+    return (<>
+      <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
+        <NotesList_1.default deleteNote={deleteNote} editNote={editNote} notes={notes} sortNotesAsc={sortNotesAsc} sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange} filteredNotes={filteredNotes}/>
+        <AddNoteForm_1.default noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit}/>
+      </div>
+      <div>
+        <Register_1.default />
+      </div>
+    </>);
 }
-exports.default = App;
+exports.App = App;

@@ -52,42 +52,31 @@ function AddNoteForm({ addNote, noteBeingEdited }) {
             priority: notePriority,
             category: noteCategory,
         };
+        console.log('Submitting Note:', newNote);
         addNote(newNote);
         // Clear form fields after submitting the note
         setNoteContent('');
         setNotePriority('');
         setNoteCategory('');
     };
-    return (<form style={{ width: constants_1.minWidth, height: constants_1.minHeight }} className="Form flex flex-col gap-4 bg-white p-10 rounded-3xl shadow-xl">
-      <div className="flex flex-col text-start">
-        <label htmlFor="note-content">Content</label>
-        <textarea className="border-[1px] p-2 rounded border-black" name="note-content" id="note-content" onChange={handleContentChange} value={noteContent}></textarea>
-      </div>
-      <div className="flex flex-col text-start">
-        <label htmlFor="note-priority">Priority</label>
-        {[1, 2, 3, 4, 5].map((priority) => {
-            return (<span key={priority} className="flex gap-4 items-center">
-              <input type="radio" name="priority" id={priority.toString()} // Convert priority to string for IDs
-             value={priority} checked={notePriority === priority} onChange={handlePriorityChange}/>
-              <label htmlFor={priority.toString()}>{priority}</label>
-            </span>);
-        })}
-      </div>
-
-      <div className="flex flex-col justify-start text-start">
-        <label htmlFor="note-category">Category</label>
-        <select name="note-category" id="note-category" onChange={handleCategoryChange} value={noteCategory}>
-          <option value="">Select Category</option>
-          <option value="home">home</option>
-          <option value="hobbies">hobbies</option>
-          <option value="work">work</option>
-        </select>
-      </div>
-
-      <button type="button" className="bg-green-300" onClick={handleSubmit}>
-  {noteBeingEdited && 'id' in noteBeingEdited ? 'Edit Note' : 'Add Note'}
-    </button>
-
-    </form>);
+    return (react_1.default.createElement("form", { style: { width: constants_1.minWidth, height: constants_1.minHeight }, className: "Form flex flex-col gap-4 bg-white p-10 rounded-3xl shadow-xl" },
+        react_1.default.createElement("div", { className: "flex flex-col text-start" },
+            react_1.default.createElement("label", { htmlFor: "note-content" }, "Content"),
+            react_1.default.createElement("textarea", { className: "border-[1px] p-2 rounded border-black", name: "note-content", id: "note-content", onChange: handleContentChange, value: noteContent })),
+        react_1.default.createElement("div", { className: "flex flex-col text-start" },
+            react_1.default.createElement("label", { htmlFor: "note-priority" }, "Priority"),
+            [1, 2, 3, 4, 5].map((priority) => {
+                return (react_1.default.createElement("span", { key: priority, className: "flex gap-4 items-center" },
+                    react_1.default.createElement("input", { type: "radio", name: "priority", id: priority.toString(), value: priority, checked: notePriority === priority, onChange: handlePriorityChange }),
+                    react_1.default.createElement("label", { htmlFor: priority.toString() }, priority)));
+            })),
+        react_1.default.createElement("div", { className: "flex flex-col justify-start text-start" },
+            react_1.default.createElement("label", { htmlFor: "note-category" }, "Category"),
+            react_1.default.createElement("select", { name: "note-category", id: "note-category", onChange: handleCategoryChange, value: noteCategory },
+                react_1.default.createElement("option", { value: "" }, "Select Category"),
+                react_1.default.createElement("option", { value: "home" }, "home"),
+                react_1.default.createElement("option", { value: "hobbies" }, "hobbies"),
+                react_1.default.createElement("option", { value: "work" }, "work"))),
+        react_1.default.createElement("button", { type: "button", className: "bg-green-300", onClick: handleSubmit }, noteBeingEdited && 'id' in noteBeingEdited ? 'Edit Note' : 'Add Note')));
 }
 exports.default = AddNoteForm;

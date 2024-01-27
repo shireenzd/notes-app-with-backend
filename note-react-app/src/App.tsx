@@ -1,8 +1,9 @@
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import NotesList from "./components/NotesList";
 import AddNoteForm from "./components/AddNoteForm";
 import Register from "./components/Register";
+import { useNotesStore } from "./components/store";
 
 interface Note {
   id: number;
@@ -18,30 +19,24 @@ function App() {
       content: "Buy groceries",
       priority: 2,
       category: "home",
-      // author: {
-      //   userName: "shireen",
-      //   profile:"/profile-pic.webp"
-      // },
-    },
-    {
-      id: 2,
-      content: "Note 2",
-      priority: 1,
-      category: "hobbies",
-      // author: {
-      //   userName: "shireen",
-      //   profile:"/profile-pic.webp"
-      // },
-    },
+    }
   ]);
 
   const [noteBeingEdited, setNoteBeingEdited] = useState<Note | {}>({});
+  const {
+    token,
+  } = useNotesStore()
 
 
-  useEffect(()=>{
-    const fetchNotes =async () => {
+
+  useEffect(() => {
+    const fetchNotes = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/notes")
+        const response = await fetch("http://localhost:5000/api/notes", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const notes = await response.json()
         setNotes(notes)
         console.log("restored")
@@ -50,7 +45,40 @@ function App() {
       }
     }
     fetchNotes()
-  },[])
+  }, [])
+
+
+  // useEffect(() => {
+  //   const fetchToken = async () => {
+  //     try {
+  //       // Perform user login (replace with your actual login logic)
+  //       const response = await fetch("http://localhost:5000/api/login", {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           username: 'exampleUser',
+  //           password: 'examplePassword',
+  //         }),
+  //       });
+
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         console.log(data)
+  //         setToken(data.token); // Assuming your token is in the 'token' property of the response
+  //         console.log(data)
+  //       } else {
+  //         console.error('Login failed:', response.status, response.statusText);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching token:', error);
+  //     }
+  //   };
+
+  //   fetchToken();
+  // }, []);
+
 
   async function addNote(note: Note) {
     try {
@@ -59,21 +87,26 @@ function App() {
         console.error('Invalid note object:', note);
         return;
       }
-  
+
       if ('id' in note && note.id) {
-        // If the note has an ID, it means it's an existing note, so perform an edit
         editNote(note.id, note);
       } else {
-        // If there's no ID, it's a new note, so add it
+        console.log('Token:', token);
+
+        if (!token) {
+          console.error('Token not available!');
+          return;
+        }
         const response = await fetch("http://localhost:5000/api/notes/create", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify(note),
         });
         setNoteBeingEdited({});
-  
+
         if (response.ok) {
           const newNote = await response.json();
           setNotes((prevNotes) => [...prevNotes, newNote]);
@@ -86,14 +119,11 @@ function App() {
       console.error('Fetch error:', error);
     }
   }
-  
-  
 
- 
 
   async function editNote(noteID: number, updatedData: any) {
     try {
-      // Send a PUT request to update the note on the server, including the ID
+
       const response = await fetch(`http://localhost:5000/api/notes/${noteID}`, {
         method: 'PUT',
         headers: {
@@ -101,21 +131,18 @@ function App() {
         },
         body: JSON.stringify({
           ...updatedData,
-          id: noteID, // Add the ID to the request body
+          id: noteID,
         }),
       });
-  
+
       if (response.ok) {
-        // If the update request is successful, update the local state
+
         const updatedNote = await response.json();
-  
-        // Remove the edited note from the list
+
         const updatedNotes = notes.filter((note: any) => note.id !== noteID);
         setNotes(updatedNotes);
-  
-        // Set the edited note as the noteBeingEdited
         setNoteBeingEdited(updatedNote);
-  
+
         console.log('Note updated successfully');
       } else {
         console.error('Error updating note:', response.status, response.statusText);
@@ -127,13 +154,12 @@ function App() {
 
   async function deleteNote(noteID: number) {
     try {
-      // Send a DELETE request to delete the note
       const response = await fetch(`http://localhost:5000/api/note/${noteID}`, {
         method: 'DELETE',
       });
-  
+
       if (response.ok) {
-        // If the delete request is successful, update the state and local storage
+
         const updatedNotes = notes.filter((note: any) => note.id !== noteID);
         setNotes(updatedNotes);
         localStorage.setItem('notes', JSON.stringify(updatedNotes));
@@ -145,50 +171,55 @@ function App() {
       console.error('Fetch error:', error);
     }
   }
-  
-  
-  function handleNoteFormSubmit(editedNote: Note) {
+
+
+  const fetchNotes = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/notes");
+      const notes = await response.json();
+      setNotes(notes);
+      console.log("Notes updated");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleNoteFormSubmit = async (editedNote: Note) => {
     if ('id' in noteBeingEdited) {
-      // If the edited note has an ID, it means it already exists, so update it
-      editNote(noteBeingEdited.id, editedNote);
-      addNote( editedNote)
+      await editNote(noteBeingEdited.id, editedNote);
       setNoteBeingEdited({});
+      fetchNotes()
+
     } else {
-      // If there's no ID, it's a new note, so add it
       addNote(editedNote);
     }
-    // Clear the noteBeingEdited state
-    
-  }
-  
-  
-  
-  
+  };
+
 
   function sortNotesAsc() {
     const sortedNotes = [...notes];
-  
-    sortedNotes.sort((a:any , b:any) => {
-  
+
+    sortedNotes.sort((a: any, b: any) => {
+
       return a - b;
     });
-  
+
     setNotes(sortedNotes);
   }
-  
+
   function sortNotesDesc() {
     const sortedNotes = [...notes];
-  
-    sortedNotes.sort((a:any, b:any) => {
+
+    sortedNotes.sort((a: any, b: any) => {
       return b - a;
     });
-  
+
     setNotes(sortedNotes);
   }
 
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const handleCategoryChange = (event:any) => {
+  const handleCategoryChange = (event: any) => {
     const selectedValue = event.target.value;
     setSelectedCategory(selectedValue);
   };
@@ -199,25 +230,28 @@ function App() {
     : notes;
 
 
-   
+
   return (
     <>
-    <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
-      <NotesList
-        deleteNote={deleteNote}
-        editNote={editNote}
-        notes={notes}
-        sortNotesAsc={sortNotesAsc}
-        sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange} 
-        filteredNotes={filteredNotes}   
-           />
-      <AddNoteForm noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit} />
-    </div>
-    <div>
-      <Register/>
-    </div>
+      {token ? (
+        <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
+          <NotesList
+            deleteNote={deleteNote}
+            editNote={editNote}
+            notes={notes}
+            sortNotesAsc={sortNotesAsc}
+            sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange}
+            filteredNotes={filteredNotes}
+          />
+          <AddNoteForm noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit} />
+        </div>)
+        :
+        (<div>
+          <Register />
+        </div>)
+      }
     </>
   );
-  }
+}
 
 export default App;

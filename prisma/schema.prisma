@@ -15,7 +15,7 @@ model User {
   name String 
   email String  @unique
   password String
-  // Notes Note[]
+  Notes Note[]
 }
 
 model Note {
@@ -23,6 +23,6 @@ model Note {
   content String
   priority Int
   category String
-  // owner   User @relation(fields: [ownerId], references: [id])
-  // ownerId Int
+  owner   User @relation(fields: [userId], references: [id])
+  userId Int
 }
