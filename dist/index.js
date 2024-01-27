@@ -175,14 +175,21 @@ app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 }));
 // return only notes for user
 app.get("/notes", auth_1.auth, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // @ts-ignore
-    const tokenData = JSON.parse(req.decoded.data);
-    const notes = yield prisma.note.findMany({
-        where: {
-            userId: tokenData.id,
-        },
-    });
-    res.json(notes);
+    try {
+        // @ts-ignore
+        const userId = JSON.parse(req.decoded.data).userId;
+        console.log("Decoded User ID:", userId);
+        const notes = yield prisma.note.findMany({
+            where: {
+                userId: userId,
+            },
+        });
+        res.json(notes);
+    }
+    catch (error) {
+        console.error("Error fetching notes:", error);
+        res.status(500).send("Something went wrong");
+    }
 }));
 app.listen(PORT, () => {
     console.log(`server running on localhost:${PORT}`);

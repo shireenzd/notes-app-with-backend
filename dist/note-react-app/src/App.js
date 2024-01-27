@@ -51,57 +51,32 @@ function App() {
         }
     ]);
     const [noteBeingEdited, setNoteBeingEdited] = (0, react_1.useState)({});
-    const { token, } = (0, store_1.useNotesStore)();
+    const { token, setToken } = (0, store_1.useNotesStore)();
+    const fetchNotes = () => __awaiter(this, void 0, void 0, function* () {
+        try {
+            const response = yield fetch("http://localhost:5000/notes", {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            const fetchedNotes = yield response.json();
+            setNotes(fetchedNotes);
+            console.log(fetchedNotes);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    });
     (0, react_1.useEffect)(() => {
-        const fetchNotes = () => __awaiter(this, void 0, void 0, function* () {
-            try {
-                const response = yield fetch("http://localhost:5000/api/notes", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const notes = yield response.json();
-                setNotes(notes);
-                console.log("restored");
-            }
-            catch (error) {
-                console.log(error);
-            }
-        });
-        fetchNotes();
-    }, []);
-    // useEffect(() => {
-    //   const fetchToken = async () => {
-    //     try {
-    //       // Perform user login (replace with your actual login logic)
-    //       const response = await fetch("http://localhost:5000/api/login", {
-    //         method: 'POST',
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({
-    //           username: 'exampleUser',
-    //           password: 'examplePassword',
-    //         }),
-    //       });
-    //       if (response.ok) {
-    //         const data = await response.json();
-    //         console.log(data)
-    //         setToken(data.token); // Assuming your token is in the 'token' property of the response
-    //         console.log(data)
-    //       } else {
-    //         console.error('Login failed:', response.status, response.statusText);
-    //       }
-    //     } catch (error) {
-    //       console.error('Error fetching token:', error);
-    //     }
-    //   };
-    //   fetchToken();
-    // }, []);
+        if (token) {
+            fetchNotes();
+        }
+    }, [token]);
     function addNote(note) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Validate the note object
                 if (!note || !note.content || !note.priority || !note.category) {
                     console.error('Invalid note object:', note);
                     return;
@@ -186,17 +161,6 @@ function App() {
             }
         });
     }
-    const fetchNotes = () => __awaiter(this, void 0, void 0, function* () {
-        try {
-            const response = yield fetch("http://localhost:5000/api/notes");
-            const notes = yield response.json();
-            setNotes(notes);
-            console.log("Notes updated");
-        }
-        catch (error) {
-            console.log(error);
-        }
-    });
     const handleNoteFormSubmit = (editedNote) => __awaiter(this, void 0, void 0, function* () {
         if ('id' in noteBeingEdited) {
             yield editNote(noteBeingEdited.id, editedNote);
@@ -229,9 +193,16 @@ function App() {
     const filteredNotes = selectedCategory
         ? notes.filter((note) => note.category === selectedCategory)
         : notes;
-    return (react_1.default.createElement(react_1.default.Fragment, null, token ? (react_1.default.createElement("div", { className: "App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]" },
-        react_1.default.createElement(NotesList_1.default, { deleteNote: deleteNote, editNote: editNote, notes: notes, sortNotesAsc: sortNotesAsc, sortNotesDesc: sortNotesDesc, selectedCategory: selectedCategory, handleCategoryChange: handleCategoryChange, filteredNotes: filteredNotes }),
-        react_1.default.createElement(AddNoteForm_1.default, { noteBeingEdited: noteBeingEdited, addNote: handleNoteFormSubmit })))
+    function handleLogOut() {
+        setToken('');
+    }
+    return (react_1.default.createElement(react_1.default.Fragment, null, token ?
+        (react_1.default.createElement("div", { className: "flex flex-col justify-center items-center mt-2" },
+            react_1.default.createElement("button", { type: "button", className: "bg-green-300 rounded-md p-4 ", onClick: handleLogOut },
+                react_1.default.createElement("b", null, "Logout")),
+            react_1.default.createElement("div", { className: "App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]" },
+                react_1.default.createElement(NotesList_1.default, { deleteNote: deleteNote, editNote: editNote, notes: notes, sortNotesAsc: sortNotesAsc, sortNotesDesc: sortNotesDesc, selectedCategory: selectedCategory, handleCategoryChange: handleCategoryChange, filteredNotes: filteredNotes }),
+                react_1.default.createElement(AddNoteForm_1.default, { noteBeingEdited: noteBeingEdited, addNote: handleNoteFormSubmit }))))
         :
             (react_1.default.createElement("div", null,
                 react_1.default.createElement(Register_1.default, null)))));

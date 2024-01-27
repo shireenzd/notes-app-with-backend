@@ -4,12 +4,6 @@ import React from 'react'
 function Note({note, editNote, deleteNote,noteColor}:{note:any, editNote:Function, deleteNote:Function,noteColor:string}) {
   return (
     <div className="flex gap-[19px]  bg-${noteColor} p-6 rounded-xl justify-between ">
-      {/* <div className='flex flex-col'>
-      <div className="overflow-hidden w-[50px] rounded-full">
-        <img className="w-full" src={note.author?.profile} alt="profile" />
-      </div>
-        <p>{note.author?.userName}</p>
-        </div> */}
       <div className="text-start w-full">
         {note.content}
       </div>

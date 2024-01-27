@@ -1,7 +1,7 @@
 import React from "react";
 import Note from "./Note";
 import { minHeight, minWidth } from "./shared/constants";
-import { AnyARecord } from "dns";
+import { useNotesStore } from "./store";
 
 function NotesList({
   notes,
@@ -22,22 +22,19 @@ function NotesList({
   handleCategoryChange: Function;
   filteredNotes: any
 }) {
-  const handleClickAsc: React.MouseEventHandler<HTMLParagraphElement> = (
-    event
-  ) => {
+  const handleClickAsc: React.MouseEventHandler<HTMLParagraphElement> = (event) => {
     sortNotesAsc();
   };
-  const handleClickDesc: React.MouseEventHandler<HTMLParagraphElement> = (
-    event
-  ) => {
+  const handleClickDesc: React.MouseEventHandler<HTMLParagraphElement> = (event) => {
     sortNotesDesc();
   };
 
-  const sortingStyle={
-    display:'flex',
-    justifyContent:'space-around'
+
+  const sortingStyle = {
+    display: 'flex',
+    justifyContent: 'space-around'
   }
- 
+
   type CategoryColors = {
     [key: string]: string;
   };
@@ -51,7 +48,6 @@ function NotesList({
   const getNoteColor = (category: string) => categoryColors[category] || 'pink';
 
 
-
   return (
     <div
       style={{ width: minWidth, height: minHeight }}
@@ -59,8 +55,8 @@ function NotesList({
     >
       <div style={sortingStyle}>
         <div>
-        <p onClick={handleClickAsc}><b>&uarr;</b></p>
-        <p onClick={handleClickDesc}><b>&darr;</b></p>
+          <p onClick={handleClickAsc}><b>&uarr;</b></p>
+          <p onClick={handleClickDesc}><b>&darr;</b></p>
         </div>
         <select >
           <option value="">All</option>
@@ -69,18 +65,19 @@ function NotesList({
           <option value="hobbies">Hobbies</option>
         </select>
       </div>
-      {filteredNotes.map((note:any) => {
-          return (
-            <div
-              key={note.id}
-              className="note-item"
-              style={{ backgroundColor: categoryColors[note.category] }}
-            >
-        <Note key={note.id} note={note} deleteNote={deleteNote} editNote={editNote}  noteColor={getNoteColor(note.category)}/>
-        </div>
+      {filteredNotes.map((note: any) => {
+        return (
+          <div
+            key={note.id}
+            className="note-item"
+            style={{ backgroundColor: categoryColors[note.category] }}
+          >
+            <Note key={note.id} note={note} deleteNote={deleteNote} editNote={editNote} noteColor={getNoteColor(note.category)} />
+          </div>
+        )
+      }
       )}
-      )}
-      </div>
+    </div>
   )
 }
 

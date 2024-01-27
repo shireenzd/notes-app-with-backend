@@ -24,65 +24,39 @@ function App() {
 
   const [noteBeingEdited, setNoteBeingEdited] = useState<Note | {}>({});
   const {
-    token,
+    token, setToken
   } = useNotesStore()
 
 
+  const fetchNotes = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/notes", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const fetchedNotes = await response.json();
+
+      setNotes(fetchedNotes);
+      console.log(fetchedNotes);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/notes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const notes = await response.json()
-        setNotes(notes)
-        console.log("restored")
-      } catch (error) {
-        console.log(error)
-      }
+    if (token) {
+      fetchNotes();
     }
-    fetchNotes()
-  }, [])
+  }, [token]);
 
-
-  // useEffect(() => {
-  //   const fetchToken = async () => {
-  //     try {
-  //       // Perform user login (replace with your actual login logic)
-  //       const response = await fetch("http://localhost:5000/api/login", {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({
-  //           username: 'exampleUser',
-  //           password: 'examplePassword',
-  //         }),
-  //       });
-
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         console.log(data)
-  //         setToken(data.token); // Assuming your token is in the 'token' property of the response
-  //         console.log(data)
-  //       } else {
-  //         console.error('Login failed:', response.status, response.statusText);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching token:', error);
-  //     }
-  //   };
-
-  //   fetchToken();
-  // }, []);
 
 
   async function addNote(note: Note) {
     try {
-      // Validate the note object
+
       if (!note || !note.content || !note.priority || !note.category) {
         console.error('Invalid note object:', note);
         return;
@@ -173,17 +147,6 @@ function App() {
   }
 
 
-  const fetchNotes = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/notes");
-      const notes = await response.json();
-      setNotes(notes);
-      console.log("Notes updated");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const handleNoteFormSubmit = async (editedNote: Note) => {
     if ('id' in noteBeingEdited) {
       await editNote(noteBeingEdited.id, editedNote);
@@ -229,22 +192,29 @@ function App() {
     ? notes.filter((note) => note.category === selectedCategory)
     : notes;
 
+  function handleLogOut() {
+    setToken('')
+  }
 
 
   return (
     <>
-      {token ? (
-        <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
-          <NotesList
-            deleteNote={deleteNote}
-            editNote={editNote}
-            notes={notes}
-            sortNotesAsc={sortNotesAsc}
-            sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange}
-            filteredNotes={filteredNotes}
-          />
-          <AddNoteForm noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit} />
-        </div>)
+      {token ?
+        (
+          <div className="flex flex-col justify-center items-center mt-2">
+            <button type="button" className="bg-green-300 rounded-md p-4 " onClick={handleLogOut} ><b>Logout</b></button>
+            <div className="App flex justify-center items-center h-screen gap-[2rem] bg-[var(--accent-light)]">
+              <NotesList
+                deleteNote={deleteNote}
+                editNote={editNote}
+                notes={notes}
+                sortNotesAsc={sortNotesAsc}
+                sortNotesDesc={sortNotesDesc} selectedCategory={selectedCategory} handleCategoryChange={handleCategoryChange}
+                filteredNotes={filteredNotes}
+              />
+              <AddNoteForm noteBeingEdited={noteBeingEdited} addNote={handleNoteFormSubmit} />
+            </div>
+          </div>)
         :
         (<div>
           <Register />

@@ -16,13 +16,12 @@ const react_1 = __importDefault(require("react"));
 const react_2 = require("react");
 const store_1 = require("./store");
 function Register() {
-    // const [hidden, setHidden] = useState(false);
     const [registerHidden, setRigesterHidden] = (0, react_2.useState)(false);
     const [logInHidden, setLogInHidden] = (0, react_2.useState)(true);
     const [name, setName] = (0, react_2.useState)('');
     const [email, setEmail] = (0, react_2.useState)('');
     const [password, setPassword] = (0, react_2.useState)('');
-    const { setToken, token } = (0, store_1.useNotesStore)();
+    const { setToken } = (0, store_1.useNotesStore)();
     const handleSubmit = () => __awaiter(this, void 0, void 0, function* () {
         const user = {
             name,
@@ -42,7 +41,8 @@ function Register() {
             }
             const result = yield response.json();
             console.log('Parsed Result:', result);
-            setToken(result.token);
+            const token = result.token;
+            setToken(token);
         }
         catch (error) {
             alert('User already exists');
@@ -65,7 +65,8 @@ function Register() {
             });
             if (response.ok) {
                 const result = yield response.json();
-                setToken(result.token);
+                const token = result.token;
+                setToken(token);
                 console.log('Parsed Result:', result);
                 if (result.error) {
                     alert(result.error);
@@ -107,7 +108,7 @@ function Register() {
                     react_1.default.createElement("div", { className: 'flex flex-col items-center' },
                         react_1.default.createElement("button", { type: "button", className: 'bg-blue-200 p-4 rounded-xl', onClick: handleSubmit }, "register"),
                         react_1.default.createElement("p", { className: 'p-2 text-blue-500 underline', onClick: handleLogIn }, "already have an account?")))),
-            react_1.default.createElement("div", null,
+            react_1.default.createElement("div", { className: logInHidden ? 'hidden' : '' },
                 react_1.default.createElement("div", { className: ' register flex flex-col justify-center items-center gap-10 p-5 min-w-96 min-h-96 ' },
                     react_1.default.createElement("span", { className: 'flex flex-col ' },
                         react_1.default.createElement("label", { htmlFor: "exist-email", className: 'text-xl' }, "Email:"),

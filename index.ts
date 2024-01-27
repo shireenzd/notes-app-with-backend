@@ -206,14 +206,22 @@ app.post("/login", async (req, res) => {
 
 // return only notes for user
 app.get("/notes", auth, async (req, res) => {
-  // @ts-ignore
-  const tokenData = JSON.parse(req.decoded.data);
-  const notes = await prisma.note.findMany({
-    where: {
-      userId: tokenData.id,
-    },
-  });
-  res.json(notes);
+  try {
+    // @ts-ignore
+    const userId = JSON.parse(req.decoded.data).userId;
+    console.log("Decoded User ID:", userId);
+
+    const notes = await prisma.note.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+
+    res.json(notes);
+  } catch (error) {
+    console.error("Error fetching notes:", error);
+    res.status(500).send("Something went wrong");
+  }
 });
 
 app.listen(PORT, () => {

@@ -4,8 +4,6 @@ import { useNotesStore } from './store';
 
 function Register() {
 
-    
-    // const [hidden, setHidden] = useState(false);
     const [registerHidden, setRigesterHidden] = useState(false)
     const [logInHidden, setLogInHidden] = useState(true)
 
@@ -15,7 +13,7 @@ function Register() {
     const [password, setPassword] = useState('');
 
 
-    const {setToken, token}= useNotesStore()
+    const { setToken } = useNotesStore()
 
     const handleSubmit = async () => {
         const user = {
@@ -25,7 +23,7 @@ function Register() {
         };
 
         try {
-        
+
             const response = await fetch('http://localhost:5000/register', {
                 method: 'POST',
                 headers: {
@@ -35,12 +33,13 @@ function Register() {
             });
 
             if (!response.ok) {
-                
+
                 throw new Error('User already exists');
             }
             const result = await response.json();
-                console.log('Parsed Result:', result);
-             setToken(result.token)
+            console.log('Parsed Result:', result);
+            const token = result.token;
+            setToken(token)
 
         } catch (error) {
             alert('User already exists');
@@ -48,9 +47,9 @@ function Register() {
         }
     };
 
-    
+
     const handleLogInSubmit = async () => {
-    
+
         const userCredentials = {
             email: email,
             password: password,
@@ -67,18 +66,19 @@ function Register() {
                 body: JSON.stringify(userCredentials),
             });
 
-            
+
             if (response.ok) {
                 const result = await response.json();
-                setToken(result.token)
+                const token = result.token;
+                setToken(token)
 
                 console.log('Parsed Result:', result);
 
                 if (result.error) {
                     alert(result.error);
-                } 
+                }
             } else {
-            
+
                 throw new Error('Invalid credentials');
             }
         } catch (error) {
@@ -130,7 +130,7 @@ function Register() {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div className={logInHidden ? 'hidden' : ''}>
                     <div className=' register flex flex-col justify-center items-center gap-10 p-5 min-w-96 min-h-96 ' >
                         <span className='flex flex-col '>
                             <label htmlFor="exist-email" className='text-xl'>Email:</label>
